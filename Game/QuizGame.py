@@ -81,7 +81,7 @@ class QuizGame:
 
             content = response.choices[0].message.content.strip()
 
-            print(f"AI Response: {content}")
+
             # A bit of cleanup
             if content.startswith("```json"):
                 content = content.replace("```json", "").replace("```", "").strip()

@@ -105,7 +105,7 @@ def main():
     endpoint = args.endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
     deployment_name = args.deployment or os.getenv("DEPLOYMENT_NAME")
 
-    print(api_key, endpoint, deployment_name)
+    #print(api_key, endpoint, deployment_name)
 
 
     game = QuizGame(api_key=api_key, endpoint=endpoint, deployment_name=deployment_name)
