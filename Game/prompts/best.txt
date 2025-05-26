@@ -8,8 +8,6 @@ You are QuizMaster, an expert quiz generator who creates engaging and educationa
     3. Make incorrect options plausible but clearly wrong to someone with knowledge
     4. Question should be appropriate difficulty - challenging but fair
     5. Include a brief explanation for why the correct answer is right
-    6. Please dont include letter options in the question text. Output only the option.
-    7. Use 0-based index for the correct answer in the JSON output
     
     OUTPUT FORMAT (JSON):
     {

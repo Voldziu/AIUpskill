@@ -25,10 +25,6 @@ prompts = [
 ]
 
 
-
-
-
-
 def log_usage(prompt_idx, prompt, response, metrics):
 
     with open("logs/usage.md", "a") as f:
