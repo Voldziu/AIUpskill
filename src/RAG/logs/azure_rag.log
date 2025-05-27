@@ -230,3 +230,10 @@
 2025-05-27 13:27:20 | RagClient | INFO | interactive_mode:443 | Source 1:  - Margies Travel Company Info.pdf (Score: 0.033)
 2025-05-27 13:27:20 | RagClient | INFO | interactive_mode:443 | Source 2:  - Dubai Brochure.pdf (Score: 0.033)
 2025-05-27 13:27:20 | RagClient | INFO | interactive_mode:443 | Source 3:  - Las Vegas Brochure.pdf (Score: 0.016)
+2025-05-27 15:28:18 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-27 15:28:18 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully
+2025-05-27 15:28:21 | RagClient | INFO | interactive_mode:426 | Interactive query: 'TEst'
+2025-05-27 15:28:21 | RagClient | INFO | ask:320 | Processing RAG query: 'TEst'
+2025-05-27 15:28:21 | RagClient | INFO | search_documents:203 | Searching documents for query: 'TEst' (top_k=3)
+2025-05-27 15:28:22 | RagClient | DEBUG | generate_embeddings:188 | Embeddings generated successfully
+2025-05-27 15:28:22 | RagClient | INFO | search_documents:213 | Query embeddings generated successfully: 1536 dimensions
