@@ -165,3 +165,68 @@
 2025-05-26 19:13:56 | RagClient | DEBUG | generate_response:212 | Generating response from Azure OpenAI
 2025-05-26 19:13:57 | RagClient | INFO | generate_response:225 | Generated response (293 chars)
 2025-05-26 19:13:57 | RagClient | INFO | ask:286 | RAG query completed successfully with 3 sources
+2025-05-27 13:23:48 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-27 13:23:48 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully
+2025-05-27 13:24:19 | RagClient | INFO | interactive_mode:425 | Interactive query: 'What destinations can i see?'
+2025-05-27 13:24:19 | RagClient | INFO | ask:319 | Processing RAG query: 'What destinations can i see?'
+2025-05-27 13:24:19 | RagClient | INFO | search_documents:202 | Searching documents for query: 'What destinations can i see?' (top_k=3)
+2025-05-27 13:24:20 | RagClient | DEBUG | generate_embeddings:187 | Embeddings generated successfully
+2025-05-27 13:24:20 | RagClient | INFO | search_documents:212 | Query embeddings generated successfully: 1536 dimensions
+2025-05-27 13:24:22 | RagClient | INFO | search_documents:244 | Retrieved 3 documents
+2025-05-27 13:24:22 | RagClient | DEBUG | search_documents:246 | Document 1:  (score: 0.033)
+2025-05-27 13:24:22 | RagClient | DEBUG | search_documents:246 | Document 2:  (score: 0.033)
+2025-05-27 13:24:22 | RagClient | DEBUG | search_documents:246 | Document 3:  (score: 0.016)
+2025-05-27 13:24:22 | RagClient | INFO | ask:344 | Found 3 relevant documents
+2025-05-27 13:24:22 | RagClient | INFO | create_rag_prompt:285 | Creating RAG prompt for query: 'What destinations can i see?' with 3 context documents
+2025-05-27 13:24:22 | RagClient | DEBUG | generate_response:294 | Generating response from Azure OpenAI
+2025-05-27 13:24:23 | RagClient | INFO | generate_response:307 | Generated response (222 chars)
+2025-05-27 13:25:10 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-27 13:25:10 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully
+2025-05-27 13:25:15 | RagClient | INFO | interactive_mode:425 | Interactive query: 'what destination can i see?'
+2025-05-27 13:25:15 | RagClient | INFO | ask:319 | Processing RAG query: 'what destination can i see?'
+2025-05-27 13:25:15 | RagClient | INFO | search_documents:202 | Searching documents for query: 'what destination can i see?' (top_k=3)
+2025-05-27 13:25:16 | RagClient | DEBUG | generate_embeddings:187 | Embeddings generated successfully
+2025-05-27 13:25:16 | RagClient | INFO | search_documents:212 | Query embeddings generated successfully: 1536 dimensions
+2025-05-27 13:25:16 | RagClient | INFO | search_documents:244 | Retrieved 3 documents
+2025-05-27 13:25:16 | RagClient | DEBUG | search_documents:246 | Document 1:  (score: 0.033)
+2025-05-27 13:25:16 | RagClient | DEBUG | search_documents:246 | Document 2:  (score: 0.033)
+2025-05-27 13:25:16 | RagClient | DEBUG | search_documents:246 | Document 3:  (score: 0.016)
+2025-05-27 13:25:16 | RagClient | INFO | ask:344 | Found 3 relevant documents
+2025-05-27 13:25:16 | RagClient | INFO | create_rag_prompt:285 | Creating RAG prompt for query: 'what destination can i see?' with 3 context documents
+2025-05-27 13:25:16 | RagClient | DEBUG | generate_response:294 | Generating response from Azure OpenAI
+2025-05-27 13:25:17 | RagClient | INFO | generate_response:307 | Generated response (210 chars)
+2025-05-27 13:26:29 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-27 13:26:29 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully
+2025-05-27 13:26:35 | RagClient | INFO | interactive_mode:425 | Interactive query: 'what destinations can i see?'
+2025-05-27 13:26:35 | RagClient | INFO | ask:319 | Processing RAG query: 'what destinations can i see?'
+2025-05-27 13:26:35 | RagClient | INFO | search_documents:202 | Searching documents for query: 'what destinations can i see?' (top_k=3)
+2025-05-27 13:26:36 | RagClient | DEBUG | generate_embeddings:187 | Embeddings generated successfully
+2025-05-27 13:26:36 | RagClient | INFO | search_documents:212 | Query embeddings generated successfully: 1536 dimensions
+2025-05-27 13:26:37 | RagClient | INFO | search_documents:244 | Retrieved 3 documents
+2025-05-27 13:26:37 | RagClient | DEBUG | search_documents:246 | Document 1:  (score: 0.033)
+2025-05-27 13:26:37 | RagClient | DEBUG | search_documents:246 | Document 2:  (score: 0.033)
+2025-05-27 13:26:37 | RagClient | DEBUG | search_documents:246 | Document 3:  (score: 0.016)
+2025-05-27 13:26:37 | RagClient | INFO | ask:344 | Found 3 relevant documents
+2025-05-27 13:26:37 | RagClient | INFO | create_rag_prompt:285 | Creating RAG prompt for query: 'what destinations can i see?' with 3 context documents
+2025-05-27 13:26:37 | RagClient | DEBUG | generate_response:294 | Generating response from Azure OpenAI
+2025-05-27 13:26:38 | RagClient | INFO | generate_response:307 | Generated response (343 chars)
+2025-05-27 13:27:14 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-27 13:27:14 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully
+2025-05-27 13:27:18 | RagClient | INFO | interactive_mode:426 | Interactive query: 'What destination can i see?'
+2025-05-27 13:27:18 | RagClient | INFO | ask:320 | Processing RAG query: 'What destination can i see?'
+2025-05-27 13:27:18 | RagClient | INFO | search_documents:203 | Searching documents for query: 'What destination can i see?' (top_k=3)
+2025-05-27 13:27:18 | RagClient | DEBUG | generate_embeddings:188 | Embeddings generated successfully
+2025-05-27 13:27:18 | RagClient | INFO | search_documents:213 | Query embeddings generated successfully: 1536 dimensions
+2025-05-27 13:27:19 | RagClient | INFO | search_documents:245 | Retrieved 3 documents
+2025-05-27 13:27:19 | RagClient | DEBUG | search_documents:247 | Document 1:  (score: 0.033)
+2025-05-27 13:27:19 | RagClient | DEBUG | search_documents:247 | Document 2:  (score: 0.033)
+2025-05-27 13:27:19 | RagClient | DEBUG | search_documents:247 | Document 3:  (score: 0.016)
+2025-05-27 13:27:19 | RagClient | INFO | ask:345 | Found 3 relevant documents
+2025-05-27 13:27:19 | RagClient | INFO | create_rag_prompt:286 | Creating RAG prompt for query: 'What destination can i see?' with 3 context documents
+2025-05-27 13:27:19 | RagClient | DEBUG | generate_response:295 | Generating response from Azure OpenAI
+2025-05-27 13:27:20 | RagClient | INFO | generate_response:308 | Generated response (197 chars)
+2025-05-27 13:27:20 | RagClient | INFO | _log_to_notebook:171 | Query logged to notebook: notebooks/queries.ipynb
+2025-05-27 13:27:20 | RagClient | INFO | ask:392 | RAG query completed successfully with 3 sources
+2025-05-27 13:27:20 | RagClient | INFO | interactive_mode:443 | Source 1:  - Margies Travel Company Info.pdf (Score: 0.033)
+2025-05-27 13:27:20 | RagClient | INFO | interactive_mode:443 | Source 2:  - Dubai Brochure.pdf (Score: 0.033)
+2025-05-27 13:27:20 | RagClient | INFO | interactive_mode:443 | Source 3:  - Las Vegas Brochure.pdf (Score: 0.016)

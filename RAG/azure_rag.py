@@ -1,4 +1,3 @@
-
 import argparse
 from dotenv import load_dotenv
 
@@ -44,10 +43,19 @@ def main():
         help="Set logging level (default: INFO)"
     )
 
+    parser.add_argument(
+        "--no-notebook-log",
+        action="store_true",
+        help="Disable logging to Jupyter notebook"
+    )
+
     args = parser.parse_args()
 
     # Initialize RAG client with logging
-    rag_client = AzureRAGClient(log_level=args.log_level)
+    rag_client = AzureRAGClient(
+        log_level=args.log_level,
+        enable_notebook_logging=not args.no_notebook_log
+    )
 
     # Override top_k if they were specified in the arguments
     if args.top_k != DEFAULT_TOP_K:

@@ -1,7 +1,7 @@
 import os
 import json
-import argparse
 import logging
+from datetime import datetime
 
 from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
@@ -10,17 +10,17 @@ from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizedQuery
 from azure.core.credentials import AzureKeyCredential
 
+from helpers import create_notebook
+
 
 class AzureRAGClient:
 
 
-    def __init__(self, log_level:str = "INFO"):
+    def __init__(self, log_level:str = "INFO",enable_notebook_logging: bool = True):
 
         load_dotenv(".env",override=True)
 
-
-
-
+        self.enable_notebook_logging = enable_notebook_logging
         self.logger = None
 
         self._setup_logging(log_level)
@@ -47,6 +47,14 @@ class AzureRAGClient:
         self.max_tokens = int(os.getenv("MAX_TOKENS"))
         self.temperature = float(os.getenv("TEMPERATURE"))
         self.top_k_results = int(os.getenv("TOP_K_RESULTS"))
+
+        self.logger.info("Azure RAG Client initialized successfully")
+
+
+
+
+
+
 
     def _setup_logging(self, log_level: str):
 
@@ -86,6 +94,81 @@ class AzureRAGClient:
         logger.propagate = False
 
         self.logger = logger
+
+    def _log_to_notebook(self, query: str, answer: str, sources: List[Dict[str, Any]],
+                         metadata: Dict[str, Any] = None):
+        """Log query and response to Jupyter notebook file."""
+        notebook_path = "notebooks/queries.ipynb"
+
+        # Create notebooks directory if it doesn't exist
+        os.makedirs("notebooks", exist_ok=True)
+
+        # Create new cell content
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        cell_content = f'''# Query #{metadata.get('query_id', 'N/A')} - {timestamp}
+
+                        ## Question
+                        {query}
+
+                        ## Answer
+                        {answer}
+
+                        ## Sources ({len(sources)})
+                        '''
+
+        # Add sources information
+        for i, source in enumerate(sources, 1):
+            cell_content += f'''
+                        ### Source {i}
+                        - **Title**: {source.get('title', 'Untitled')}
+                        - **Source**: {source.get('source', 'Unknown')}
+                        - **Relevance Score**: {source.get('score', 0):.3f}
+                        '''
+
+            cell_content += f'''
+                        ## Metadata
+                        - **Model**: {metadata.get('model', 'Unknown')}
+                        - **Temperature**: {metadata.get('temperature', 'Unknown')}
+                        - **Max Tokens**: {metadata.get('max_tokens', 'Unknown')}
+                        - **Documents Retrieved**: {metadata.get('num_documents', 'Unknown')}
+                        - **Response Length**: {len(answer)} characters
+                        '''
+
+        # Create new cell
+        new_cell = {
+            "cell_type": "markdown",
+            "metadata": {
+                "query_timestamp": timestamp,
+                "query_id": metadata.get('query_id') if metadata else None
+            },
+            "source": cell_content.split('\n')
+        }
+
+        # Load existing notebook or create new one
+        if os.path.exists(notebook_path):
+            with open(notebook_path, 'r', encoding='utf-8') as f:
+                notebook = json.load(f)
+        else:
+            # Create new notebook structure
+            notebook = create_notebook(timestamp)
+
+        # Add the new cell
+        notebook["cells"].append(new_cell)
+
+        # Add separator cell
+        separator_cell = {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": ["---", ""]
+        }
+        notebook["cells"].append(separator_cell)
+
+        # Save notebook
+        with open(notebook_path, 'w', encoding='utf-8') as f:
+            json.dump(notebook, f, indent=2, ensure_ascii=False)
+
+        self.logger.info(f"Query logged to notebook: {notebook_path}")
 
     def generate_embeddings(self, text: str) -> List[float]:
         """
@@ -218,7 +301,7 @@ class AzureRAGClient:
             max_tokens=self.max_tokens
         )
 
-        print(response)
+
         if response.choices:
 
             generated_text = response.choices[0].message.content.strip()
@@ -241,12 +324,23 @@ class AzureRAGClient:
         documents = self.search_documents(query)
 
         if not documents:
-            return {
+            no_result = {
                 "query": query,
                 "answer": "I couldn't find any relevant information to answer your question.",
                 "sources": [],
                 "context_used": False
             }
+
+            # Log empty results too if enabled
+            if self.enable_notebook_logging:
+                self._log_to_notebook(query, no_result["answer"], [], {
+                    "query_id": f"Q{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                    "model": self.chat_deployment,
+                    "num_documents": 0,
+                    "note": "No relevant documents found"
+                })
+
+            return no_result
 
         self.logger.info(f"Found {len(documents)} relevant documents")
 
@@ -282,6 +376,18 @@ class AzureRAGClient:
             "context_used": True,
             "num_sources": len(documents)
         }
+
+        # Log to notebook if enabled
+        if self.enable_notebook_logging:
+            metadata = {
+                "query_id": f"Q{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                "model": self.chat_deployment,
+                "temperature": self.temperature,
+                "max_tokens": self.max_tokens,
+                "num_documents": len(documents)
+            }
+
+            self._log_to_notebook(query, answer, result["sources"], metadata)
 
         self.logger.info(f"RAG query completed successfully with {len(documents)} sources")
 
@@ -331,7 +437,7 @@ class AzureRAGClient:
                     print(result['answer'])
 
                 if result['sources']:
-                    self.logger.info(f"\n📖 Sources ({len(result['sources'])}):")
+                    self.logger.info(f"\nSources ({len(result['sources'])}):")
 
                     for i, source in enumerate(result['sources'], 1):
                         self.logger.info(f"Source {i}: {source['title']} - {source['source']} (Score: {source['score']:.3f})")
