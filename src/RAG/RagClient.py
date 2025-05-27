@@ -10,7 +10,7 @@ from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizedQuery
 from azure.core.credentials import AzureKeyCredential
 
-from helpers import create_notebook
+from src.RAG.helpers.helpers import create_notebook
 
 
 class AzureRAGClient:
