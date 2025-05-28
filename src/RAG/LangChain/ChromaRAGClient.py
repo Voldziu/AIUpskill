@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 import logging
 from datetime import datetime
 from typing import List, Dict, Any
@@ -16,7 +17,11 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
-from src.RAG.helpers.helpers import create_notebook
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from helpers import create_notebook
+
+
 from ChromaRetriever import ChromaRetriever
 
 
@@ -72,24 +77,8 @@ class ChromaRAGClient:
         )
 
         # Create prompt template
-        self.prompt_template = PromptTemplate(
-            template="""You are a helpful AI assistant that answers questions based on the provided context documents.
-
-            Instructions:
-            - Use only the information provided in the context documents to answer the question
-            - If the context doesn't contain enough information to answer the question, say so clearly
-            - Cite your sources by referencing the document titles when possible
-            - Be concise but comprehensive in your responses
-            - If there are conflicting information in the documents, acknowledge this
-            
-            Context Documents:
-            {context}
-            
-            Question: {question}
-            
-            Answer:""",
-            input_variables=["context", "question"]
-        )
+        self.prompt_template =None
+        self._setup_prompt_template()
 
         # Initialize memory if enabled
         self.memory = None
@@ -110,6 +99,28 @@ class ChromaRAGClient:
         self.logger.info("Chroma RAG Client initialized successfully")
         self.logger.info(f"Vector database: {self.persist_directory}")
         self.logger.info(f"Collection size: {self.vectorstore._collection.count()} documents")
+
+
+
+    def _setup_prompt_template(self):
+        self.prompt_template =  PromptTemplate(
+            template="""You are a helpful AI assistant that answers questions based on the provided context documents.
+
+            Instructions:
+            - Use only the information provided in the context documents to answer the question
+            - If the context doesn't contain enough information to answer the question, say so clearly
+            - Cite your sources by referencing the document titles when possible
+            - Be concise but comprehensive in your responses
+            - If there are conflicting information in the documents, acknowledge this
+            
+            Context Documents:
+            {context}
+            
+            Question: {question}
+            
+            Answer:""",
+            input_variables=["context", "question"]
+        )
 
     def _setup_logging(self, log_level: str):
         """Setup logging configuration."""

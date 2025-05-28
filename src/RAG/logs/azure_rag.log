@@ -244,3 +244,7 @@
 2025-05-27 15:40:38 | RagClient | INFO | search_documents:203 | Searching documents for query: 'test' (top_k=3)
 2025-05-27 15:40:38 | RagClient | DEBUG | generate_embeddings:188 | Embeddings generated successfully
 2025-05-27 15:40:38 | RagClient | INFO | search_documents:213 | Query embeddings generated successfully: 1536 dimensions
+2025-05-28 11:34:14 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-28 11:34:14 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully
+2025-05-28 11:34:28 | RagClient | INFO | __init__:28 | Initializing Azure RAG Client...
+2025-05-28 11:34:28 | RagClient | INFO | __init__:51 | Azure RAG Client initialized successfully

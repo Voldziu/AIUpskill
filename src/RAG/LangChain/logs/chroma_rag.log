@@ -222,3 +222,21 @@
 2025-05-27 19:39:25 | ChromaRAGClient | INFO | ask_rag:231 | Processing RAG query: 'Kto z rodziny umar³ Janowi Kochanowskiemu?'
 2025-05-27 19:39:27 | ChromaRAGClient | INFO | _log_to_notebook:353 | Query logged to notebook: notebooks/chroma_queries.ipynb
 2025-05-27 19:39:27 | ChromaRAGClient | INFO | ask_rag:296 | RAG query completed with 3 sources
+2025-05-28 11:40:19 | ChromaRAGClient | INFO | __init__:45 | Initializing Chroma RAG Client...
+2025-05-28 11:40:20 | ChromaRAGClient | INFO | __init__:99 | Chroma RAG Client initialized successfully
+2025-05-28 11:40:20 | ChromaRAGClient | INFO | __init__:100 | Vector database: db/chroma_db
+2025-05-28 11:40:20 | ChromaRAGClient | INFO | __init__:101 | Collection size: 119 documents
+2025-05-28 11:40:39 | ChromaRAGClient | INFO | __init__:45 | Initializing Chroma RAG Client...
+2025-05-28 11:40:40 | ChromaRAGClient | INFO | __init__:99 | Chroma RAG Client initialized successfully
+2025-05-28 11:40:40 | ChromaRAGClient | INFO | __init__:100 | Vector database: db/chroma_db
+2025-05-28 11:40:40 | ChromaRAGClient | INFO | __init__:101 | Collection size: 119 documents
+2025-05-28 11:41:02 | ChromaRAGClient | INFO | __init__:45 | Initializing Chroma RAG Client...
+2025-05-28 11:41:03 | ChromaRAGClient | INFO | __init__:99 | Chroma RAG Client initialized successfully
+2025-05-28 11:41:03 | ChromaRAGClient | INFO | __init__:100 | Vector database: db/chroma_db
+2025-05-28 11:41:03 | ChromaRAGClient | INFO | __init__:101 | Collection size: 119 documents
+2025-05-28 11:41:18 | ChromaRAGClient | INFO | ask_rag:242 | Processing RAG query: 'Kim jest urszulka?'
+2025-05-28 11:41:23 | ChromaRAGClient | INFO | _log_to_notebook:364 | Query logged to notebook: notebooks/chroma_queries.ipynb
+2025-05-28 11:41:23 | ChromaRAGClient | INFO | ask_rag:307 | RAG query completed with 3 sources
+2025-05-28 11:41:51 | ChromaRAGClient | INFO | ask_rag:242 | Processing RAG query: 'Kim jest jej ojciec?'
+2025-05-28 11:41:53 | ChromaRAGClient | INFO | _log_to_notebook:364 | Query logged to notebook: notebooks/chroma_queries.ipynb
+2025-05-28 11:41:53 | ChromaRAGClient | INFO | ask_rag:307 | RAG query completed with 3 sources

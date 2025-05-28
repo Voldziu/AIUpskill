@@ -1,0 +1,4 @@
+2025-05-28 11:39:56 | ChromaRAGClient | INFO | __init__:45 | Initializing Chroma RAG Client...
+2025-05-28 11:39:57 | ChromaRAGClient | INFO | __init__:99 | Chroma RAG Client initialized successfully
+2025-05-28 11:39:57 | ChromaRAGClient | INFO | __init__:100 | Vector database: db/chroma_db
+2025-05-28 11:39:57 | ChromaRAGClient | INFO | __init__:101 | Collection size: 0 documents

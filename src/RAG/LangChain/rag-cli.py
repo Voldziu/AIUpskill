@@ -8,6 +8,9 @@ from ChromaRAGClient import ChromaRAGClient
 from PDFprocessor import ChromaDocumentProcessor
 
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+
+
 def main():
     """Main CLI interface for Chroma RAG system."""
 
