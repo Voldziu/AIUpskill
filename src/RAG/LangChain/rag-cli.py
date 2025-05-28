@@ -22,7 +22,7 @@ Examples:
   %(prog)s -q "What destinations are available?"
   %(prog)s -i --memory
   %(prog)s --index-pdfs file1.pdf file2.pdf
-  %(prog)s --index-dir data/pdfs/ --recursive
+  %(prog)s --index-dir data/pdfs/ 
   %(prog)s --clear-db --index-dir data/
   %(prog)s --info
         """
@@ -331,81 +331,7 @@ def show_detailed_stats(rag_client: ChromaRAGClient):
         print(f"   ⚠️  Could not retrieve detailed stats: {e}")
 
 
-def run_system_tests(rag_client: ChromaRAGClient, verbose: bool = False):
-    """Run comprehensive system tests."""
-    print("🧪 Running System Tests...")
-
-    tests = []
-
-    # Test 1: Database connectivity
-    print("\n1. Testing database connectivity...")
-    try:
-        db_info = rag_client.get_database_info()
-        doc_count = db_info.get('total_documents', 0)
-        print(f"   ✅ Connected - {doc_count} documents found")
-        tests.append(True)
-    except Exception as e:
-        print(f"   ❌ Connection failed: {e}")
-        tests.append(False)
-
-    # Test 2: Embedding service
-    print("\n2. Testing Azure embedding service...")
-    try:
-        test_embedding = rag_client.embeddings.embed_query("test query")
-        print(f"   ✅ Embeddings working - {len(test_embedding)} dimensions")
-        tests.append(True)
-    except Exception as e:
-        print(f"   ❌ Embedding failed: {e}")
-        tests.append(False)
-
-    # Test 3: LLM service
-    print("\n3. Testing Azure LLM service...")
-    try:
-        response = rag_client.llm.predict("Respond with 'LLM Test Successful'")
-        print(f"   ✅ LLM working - Response: {response[:50]}...")
-        tests.append(True)
-    except Exception as e:
-        print(f"   ❌ LLM failed: {e}")
-        tests.append(False)
-
-    # Test 4: Retrieval (if documents exist)
-    if db_info.get('total_documents', 0) > 0:
-        print("\n4. Testing document retrieval...")
-        try:
-            docs = rag_client.retriever._get_relevant_documents("test query")
-            print(f"   ✅ Retrieval working - {len(docs)} documents retrieved")
-            tests.append(True)
-        except Exception as e:
-            print(f"   ❌ Retrieval failed: {e}")
-            tests.append(False)
-
-        # Test 5: End-to-end RAG
-        print("\n5. Testing end-to-end RAG pipeline...")
-        try:
-            result = rag_client.ask_rag("What information do you have?", verbose=verbose)
-            if result['context_used']:
-                print(f"   ✅ RAG pipeline working - Answer length: {len(result['answer'])}")
-                tests.append(True)
-            else:
-                print(f"   ⚠️  No context found, but pipeline functional")
-                tests.append(True)
-        except Exception as e:
-            print(f"   ❌ RAG pipeline failed: {e}")
-            tests.append(False)
-    else:
-        print("\n4. Skipping retrieval tests - no documents in database")
-        print("   💡 Add documents with: --index-dir data/pdfs/")
-
-    # Summary
-    passed = sum(tests)
-    total = len(tests)
-    print(f"\n📊 Test Results: {passed}/{total} tests passed")
-
-    if passed == total:
-        print("🎉 All tests passed! System is ready.")
-    else:
-        print("⚠️  Some tests failed. Check configuration and services.")
-
+   
 
 if __name__ == "__main__":
     main()

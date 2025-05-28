@@ -3,3 +3,9 @@
 .idea/
 __pycache__
 .vscode/
+db/
+notebooks/
+logs/
+*/db/
+*/notebooks/
+*/logs/
