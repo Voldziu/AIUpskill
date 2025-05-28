@@ -91,6 +91,7 @@ class ChromaDocumentProcessor:
 
         # Add enhanced metadata
         for i, chunk in enumerate(chunks):
+            chunk.id =  f"doc_{i}_{hash(chunk.page_content[:100])}"
             chunk.metadata.update({
                 "source_file": pdf_path,
                 "source": os.path.basename(pdf_path),

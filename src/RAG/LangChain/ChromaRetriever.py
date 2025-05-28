@@ -3,6 +3,7 @@ import logging
 from typing import List
 from langchain.schema import BaseRetriever, Document
 from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.azuresearch import AzureSearch
 
 
 

@@ -13,6 +13,7 @@ from langchain.chains import RetrievalQA
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -31,7 +32,7 @@ class ChromaRAGClient:
     """LangChain RAG client using local Chroma vector database."""
 
     def __init__(self, log_level: str = "INFO", enable_notebook_logging: bool = True,
-                 enable_memory: bool = False, persist_directory: str = "./db/chroma_db"):
+                 enable_memory: bool = False, persist_directory: str = "./db/chroma_db",local: bool = False):
         """Initialize Chroma-based RAG client."""
 
         self.logger = None # Initialize later in _setup_logging
@@ -63,18 +64,9 @@ class ChromaRAGClient:
         )
 
         # Initialize or load Chroma vectorstore
-        vectorstore = Chroma(
-            collection_name="rag_documents",
-            embedding_function=self.embeddings,
-            persist_directory=self.persist_directory
-        )
-        self.vectorstore = vectorstore
-
-        # Initialize retriever
-        self.retriever = ChromaRetriever(
-            vectorstore=vectorstore,
-            k=int(os.getenv("TOP_K_RESULTS", 3))
-        )
+        self.vectorstore = None
+        self.retriever = None
+        self._setup_vectorstore(local)
 
         # Create prompt template
         self.prompt_template =None
@@ -98,7 +90,9 @@ class ChromaRAGClient:
 
         self.logger.info("Chroma RAG Client initialized successfully")
         self.logger.info(f"Vector database: {self.persist_directory}")
-        self.logger.info(f"Collection size: {self.vectorstore._collection.count()} documents")
+       
+        
+        self.local = local
 
 
 
@@ -122,6 +116,38 @@ class ChromaRAGClient:
             input_variables=["context", "question"]
         )
 
+
+    def _setup_vectorstore(self,local):
+        if local:
+            
+            vectorstore = Chroma(
+                collection_name="rag_documents",
+                embedding_function=self.embeddings,
+                persist_directory=self.persist_directory
+            )
+            self.vectorstore = vectorstore
+
+            # Initialize retriever
+            self.retriever = ChromaRetriever(
+                vectorstore=vectorstore,
+                k=int(os.getenv("TOP_K_RESULTS", 3))
+            )
+        else:
+            vectorstore =  AzureSearch(
+                azure_search_endpoint=os.getenv("AZURE_SEARCH_ENDPOINT"),
+                azure_search_key=os.getenv("AZURE_SEARCH_API_KEY"),
+                index_name=os.getenv("AZURE_SEARCH_INDEX_NAME"),
+                embedding_function=self.embeddings,
+                
+            )
+            self.vectorstore = vectorstore
+            
+            self.retriever = vectorstore.as_retriever(
+                search_type="similarity",
+                k = int(os.getenv("TOP_K_RESULTS", 3)),
+               
+            )
+        
     def _setup_logging(self, log_level: str):
         """Setup logging configuration."""
         os.makedirs("logs", exist_ok=True)
@@ -155,13 +181,14 @@ class ChromaRAGClient:
 
 
         # Add documents to vectorstore
-        doc_ids = self.vectorstore.add_documents(documents)
+        doc_ids = self.vectorstore.add_documents(documents,ids=[doc.id for doc in documents])
 
         # Persist the database
-        self.vectorstore.persist()
+        if self.local:
+            self.vectorstore.persist()
 
         self.logger.info(f"Successfully added {len(doc_ids)} documents to Chroma")
-        self.logger.info(f"Total documents in collection: {self.vectorstore._collection.count()}")
+       
 
         return doc_ids
 
@@ -228,9 +255,9 @@ class ChromaRAGClient:
     def get_database_info(self) -> Dict[str, Any]:
         """Get information about the vector database."""
 
-        count = self.vectorstore._collection.count()
+       
         return {
-            "total_documents": count,
+            
             "collection_name": "rag_documents",
             "persist_directory": self.persist_directory,
             "embedding_model": os.getenv("EMBEDDING_MODEL_NAME")
@@ -243,7 +270,10 @@ class ChromaRAGClient:
 
 
         # Check if database has documents
-        doc_count = self.vectorstore._collection.count()
+        if self.local:
+            doc_count = self.vectorstore._collection.count()
+        else:
+            doc_count =1 # Assuming AzureSearch has a count method, otherwise use self.vectorstore._collection.count()
         if doc_count == 0:
             return {
                 "query": query,

@@ -2,10 +2,11 @@
 .env
 .idea/
 __pycache__
-.vscode/
+
 db/
 notebooks/
 logs/
 */db/
 */notebooks/
 */logs/
+.python_packages

@@ -137,6 +137,13 @@ Examples:
         action="store_true",
         help="Run system tests"
     )
+    
+    parser.add_argument(
+        "--local",
+        action="store_true",
+        help="run locally "
+    )
+
 
     args = parser.parse_args()
 
@@ -150,7 +157,8 @@ Examples:
             log_level=args.log_level,
             enable_notebook_logging=not args.no_notebook_log,
             enable_memory=args.memory,
-            persist_directory=args.db_path
+            persist_directory=args.db_path,
+            local=args.local
         )
 
         # Override retriever settings
@@ -290,45 +298,7 @@ def print_indexing_result(result: dict):
         print(f"❌ Indexing failed: {result['message']}")
 
 
-def show_detailed_stats(rag_client: ChromaRAGClient):
-    """Show detailed processing statistics."""
-    print("📈 Detailed Statistics:")
 
-    # Database info
-    db_info = rag_client.get_database_info()
-    print(f"\n🗄️  Database Overview:")
-    print(f"   Total documents: {db_info.get('total_documents', 0)}")
-    print(f"   Storage path: {db_info.get('persist_directory', 'Unknown')}")
-
-    # Try to get more details from Chroma
-    try:
-        collection = rag_client.vectorstore._collection
-
-        # Sample a few documents to analyze
-        sample_docs = collection.peek(limit=10)
-
-        if sample_docs and sample_docs['documents']:
-            doc_lengths = [len(doc) for doc in sample_docs['documents']]
-            avg_length = sum(doc_lengths) / len(doc_lengths)
-
-            print(f"\n📝 Document Analysis (sample of {len(doc_lengths)}):")
-            print(f"   Average chunk length: {avg_length:.0f} characters")
-            print(f"   Min length: {min(doc_lengths)} characters")
-            print(f"   Max length: {max(doc_lengths)} characters")
-
-        # Metadata analysis
-        if sample_docs and sample_docs['metadatas']:
-            sources = set()
-            for metadata in sample_docs['metadatas']:
-                if metadata and 'source' in metadata:
-                    sources.add(metadata['source'])
-
-            print(f"\n📚 Sources (sample):")
-            for source in sorted(sources):
-                print(f"   - {source}")
-
-    except Exception as e:
-        print(f"   ⚠️  Could not retrieve detailed stats: {e}")
 
 
    
