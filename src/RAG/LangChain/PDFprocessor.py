@@ -7,13 +7,13 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 
-from ChromaRAGClient import ChromaRAGClient
+from RAGClient import RAGClient
 
 
-class ChromaDocumentProcessor:
+class DocumentProcessor:
     """Handle document processing and indexing for Chroma vector database."""
 
-    def __init__(self, rag_client: ChromaRAGClient, chunk_size: int = 1000,
+    def __init__(self, rag_client: RAGClient, chunk_size: int = 1000,
                  chunk_overlap: int = 200):
         """Initialize document processor."""
         self.rag_client = rag_client
@@ -139,28 +139,27 @@ class ChromaDocumentProcessor:
 
         return all_documents
 
-    def add_documents_to_chroma(self, documents: List[Document]) -> bool:
-        """Add processed documents to Chroma database."""
+    def add_documents(self, documents: List[Document]) -> bool:
+        """Add processed documents to  database."""
         if not documents:
-            self.logger.warning("No documents to add to Chroma")
+            self.logger.warning("No documents to add to database")
             return False
 
-        self.logger.info(f"Adding {len(documents)} documents to Chroma database")
-
+        self.logger.info(f"Adding {len(documents)} documents to database")
 
         doc_ids = self.rag_client.add_documents(documents)
 
         if doc_ids:
-            self.logger.info(f"Successfully added {len(doc_ids)} documents to Chroma")
+            self.logger.info(f"Successfully added {len(doc_ids)} documents to database")
             return True
         else:
-            self.logger.error("Failed to add documents to Chroma")
+            self.logger.error("Failed to add documents to database")
             return False
 
 
 
     def index_pdf_files(self, pdf_paths: List[str]) -> Dict[str, Any]:
-        """Complete pipeline: process PDFs and add to Chroma."""
+        """Complete pipeline: process PDFs and add to database."""
         self.logger.info("Starting PDF indexing pipeline")
 
         # Validate files
@@ -185,8 +184,8 @@ class ChromaDocumentProcessor:
                 "chunks_indexed": 0
             }
 
-        # Add to Chroma
-        success = self.add_documents_to_chroma(documents)
+        # Add to database
+        success = self.add_documents(documents)
 
         result = {
             "success": success,
@@ -277,13 +276,13 @@ def example_usage():
     """Example of how to use the document processor."""
 
     # Initialize RAG client
-    rag_client = ChromaRAGClient(
+    rag_client = RAGClient(
         log_level="INFO",
         enable_notebook_logging=True
     )
 
     # Initialize processor
-    processor = ChromaDocumentProcessor(rag_client)
+    processor = DocumentProcessor(rag_client)
 
     # Example 1: Index specific files
     pdf_files = [

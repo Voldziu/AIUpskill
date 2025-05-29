@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 import logging
 from datetime import datetime
 from typing import List, Dict, Any
@@ -17,33 +16,34 @@ from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from helpers import create_notebook
-
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from ChromaRetriever import ChromaRetriever
 
-
-
-
-class ChromaRAGClient:
-    """LangChain RAG client using local Chroma vector database."""
+class RAGClient:
+    """LangChain RAG client using remote or local database."""
 
     def __init__(self, log_level: str = "INFO", enable_notebook_logging: bool = True,
-                 enable_memory: bool = False, persist_directory: str = "./db/chroma_db",local: bool = False):
-        """Initialize Chroma-based RAG client."""
-
-        self.logger = None # Initialize later in _setup_logging
-
-        load_dotenv("../.env", override=True)
+                 enable_memory: bool = False, persist_directory: str = "./db/chroma_db", 
+                 local: bool = False, verbose: bool = True):
+        """Initialize RAG client."""
+        
+        # Load environment variables
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        parent_dir = os.path.dirname(current_dir)
+        env_path = os.path.join(parent_dir, '.env')
+        load_dotenv(env_path, override=True)
+        
         self.enable_notebook_logging = enable_notebook_logging
         self.enable_memory = enable_memory
         self.persist_directory = persist_directory
+        self.local = local
+        self.verbose = verbose
+        
+        self.logger = None 
         self._setup_logging(log_level)
-
-        self.logger.info("Initializing Chroma RAG Client...")
+        if self.verbose:
+            self.logger.info("Initializing RAG Client...")
 
         # Initialize Azure embeddings
         self.embeddings = AzureOpenAIEmbeddings(
@@ -63,13 +63,13 @@ class ChromaRAGClient:
             max_tokens=int(os.getenv("MAX_TOKENS", 500))
         )
 
-        # Initialize or load Chroma vectorstore
+        # Initialize vectorstore
         self.vectorstore = None
         self.retriever = None
         self._setup_vectorstore(local)
 
         # Create prompt template
-        self.prompt_template =None
+        self.prompt_template = None
         self._setup_prompt_template()
 
         # Initialize memory if enabled
@@ -81,23 +81,19 @@ class ChromaRAGClient:
                 output_key="answer"
             )
 
-        # Initialize text splitter for document processing
+        # Initialize text splitter
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200,
             length_function=len,
         )
 
-        self.logger.info("Chroma RAG Client initialized successfully")
-        self.logger.info(f"Vector database: {self.persist_directory}")
-       
-        
-        self.local = local
-
-
+        if self.verbose:
+            self.logger.info("RAG Client initialized successfully")
+            self.logger.info(f"Vector database: {self.persist_directory}")
 
     def _setup_prompt_template(self):
-        self.prompt_template =  PromptTemplate(
+        self.prompt_template = PromptTemplate(
             template="""You are a helpful AI assistant that answers questions based on the provided context documents.
 
             Instructions:
@@ -116,36 +112,29 @@ class ChromaRAGClient:
             input_variables=["context", "question"]
         )
 
-
-    def _setup_vectorstore(self,local):
+    def _setup_vectorstore(self, local):
         if local:
-            
             vectorstore = Chroma(
                 collection_name="rag_documents",
                 embedding_function=self.embeddings,
                 persist_directory=self.persist_directory
             )
             self.vectorstore = vectorstore
-
-            # Initialize retriever
             self.retriever = ChromaRetriever(
                 vectorstore=vectorstore,
                 k=int(os.getenv("TOP_K_RESULTS", 3))
             )
         else:
-            vectorstore =  AzureSearch(
+            vectorstore = AzureSearch(
                 azure_search_endpoint=os.getenv("AZURE_SEARCH_ENDPOINT"),
                 azure_search_key=os.getenv("AZURE_SEARCH_API_KEY"),
                 index_name=os.getenv("AZURE_SEARCH_INDEX_NAME"),
                 embedding_function=self.embeddings,
-                
             )
             self.vectorstore = vectorstore
-            
             self.retriever = vectorstore.as_retriever(
                 search_type="similarity",
-                k = int(os.getenv("TOP_K_RESULTS", 3)),
-               
+                k=int(os.getenv("TOP_K_RESULTS", 3)),
             )
         
     def _setup_logging(self, log_level: str):
@@ -158,9 +147,7 @@ class ChromaRAGClient:
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
-        file_handler = logging.FileHandler('logs/chroma_rag.log')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
+        
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(numeric_level)
@@ -169,122 +156,112 @@ class ChromaRAGClient:
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
         logger.handlers.clear()
-        logger.addHandler(file_handler)
+        if self.verbose:
+            file_handler = logging.FileHandler('logs/chroma_rag.log')
+            file_handler.setLevel(logging.DEBUG)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+       
         logger.addHandler(console_handler)
         logger.propagate = False
 
         self.logger = logger
 
     def add_documents(self, documents: List[Document]) -> List[str]:
-        """Add documents to Chroma vector database."""
-        self.logger.info(f"Adding {len(documents)} documents to Chroma")
+        """Add documents to vector database."""
+        if self.verbose:
+            self.logger.info(f"Adding {len(documents)} documents")
 
+        doc_ids = self.vectorstore.add_documents(documents, ids=[doc.id for doc in documents])
 
-        # Add documents to vectorstore
-        doc_ids = self.vectorstore.add_documents(documents,ids=[doc.id for doc in documents])
-
-        # Persist the database
         if self.local:
             self.vectorstore.persist()
 
-        self.logger.info(f"Successfully added {len(doc_ids)} documents to Chroma")
-       
-
+        if self.verbose:
+            self.logger.info(f"Successfully added {len(doc_ids)} documents")
+        
         return doc_ids
-
-
 
     def process_pdf_files(self, pdf_paths: List[str]) -> List[Document]:
         """Process PDF files and add to vector database."""
-        self.logger.info(f"Processing {len(pdf_paths)} PDF files")
+        if self.verbose:
+            self.logger.info(f"Processing {len(pdf_paths)} PDF files")
 
         all_documents = []
 
         for pdf_path in pdf_paths:
-            self.logger.info(f"Processing PDF: {pdf_path}")
+            if self.verbose:
+                self.logger.info(f"Processing PDF: {pdf_path}")
 
-            # Load PDF
             loader = PyPDFLoader(pdf_path)
             documents = loader.load()
-
-            # Split into chunks
             chunks = self.text_splitter.split_documents(documents)
 
-            # Add metadata
             for chunk in chunks:
                 chunk.metadata.update({
                     "source_file": pdf_path,
                     "file_type": "pdf",
                     "processed_at": datetime.now().isoformat(),
-                    "source": os.path.basename(pdf_path)  # For compatibility
+                    "source": os.path.basename(pdf_path)
                 })
 
             all_documents.extend(chunks)
-            self.logger.info(f"Created {len(chunks)} chunks from {pdf_path}")
+            if self.verbose:
+                self.logger.info(f"Created {len(chunks)} chunks from {pdf_path}")
 
-
-
-        # Add to Chroma
         if all_documents:
             doc_ids = self.add_documents(all_documents)
-            self.logger.info(f"Added {len(doc_ids)} document chunks to vector database")
+            if self.verbose:
+                self.logger.info(f"Added {len(doc_ids)} document chunks to vector database")
 
         return all_documents
 
     def clear_database(self):
-        """Clear all documents from Chroma database."""
-        self.logger.warning("Clearing Chroma database")
+        """Clear all documents from database."""
+        if self.verbose:
+            self.logger.warning("Clearing database")
 
-        # Delete the collection
         self.vectorstore.delete_collection()
 
-        # Recreate empty collection
         self.vectorstore = Chroma(
             collection_name="rag_documents",
             embedding_function=self.embeddings,
             persist_directory=self.persist_directory
         )
 
-        # Update retriever
         self.retriever.vectorstore = self.vectorstore
-
-        self.logger.info("Chroma database cleared successfully")
-
-
+        
+        if self.verbose:
+            self.logger.info("Database cleared successfully")
 
     def get_database_info(self) -> Dict[str, Any]:
         """Get information about the vector database."""
-
-       
         return {
-            
             "collection_name": "rag_documents",
             "persist_directory": self.persist_directory,
             "embedding_model": os.getenv("EMBEDDING_MODEL_NAME")
         }
 
-
     def ask_rag(self, query: str, verbose: bool = False) -> Dict[str, Any]:
-        """Main RAG function using LangChain chains with Chroma."""
-        self.logger.info(f"Processing RAG query: '{query}'")
+        """Main RAG function."""
+        if self.verbose:
+            self.logger.info(f"Processing RAG query: '{query}'")
 
-
-        # Check if database has documents
         if self.local:
             doc_count = self.vectorstore._collection.count()
         else:
-            doc_count =1 # Assuming AzureSearch has a count method, otherwise use self.vectorstore._collection.count()
+            doc_count = 1
+
         if doc_count == 0:
             return {
                 "query": query,
-                "answer": "No documents found in the database. Please add documents first using process_pdf_files().",
+                "answer": "No documents found in the database. Please add documents first.",
                 "sources": [],
                 "context_used": False,
                 "num_sources": 0
             }
 
         if self.enable_memory and self.memory:
-            # Use conversational chain with memory
             qa_chain = ConversationalRetrievalChain.from_llm(
                 llm=self.llm,
                 retriever=self.retriever,
@@ -296,9 +273,7 @@ class ChromaRAGClient:
             result = qa_chain({"question": query})
             answer = result["answer"]
             source_docs = result.get("source_documents", [])
-
         else:
-            # Use stateless RetrievalQA chain
             qa_chain = RetrievalQA.from_chain_type(
                 llm=self.llm,
                 chain_type="stuff",
@@ -311,7 +286,6 @@ class ChromaRAGClient:
             answer = result["result"]
             source_docs = result.get("source_documents", [])
 
-        # Format response
         sources = [
             {
                 "title": doc.metadata.get("source", "Unknown"),
@@ -330,11 +304,12 @@ class ChromaRAGClient:
             "num_sources": len(sources)
         }
 
-        # Log to notebook if enabled
         if self.enable_notebook_logging and response["context_used"]:
             self._log_to_notebook(query, answer, sources)
 
-        self.logger.info(f"RAG query completed with {len(sources)} sources")
+        if self.verbose:
+            self.logger.info(f"RAG query completed with {len(sources)} sources")
+            
         return response
 
     def _log_to_notebook(self, query: str, answer: str, sources: List[Dict[str, Any]]):
@@ -345,7 +320,7 @@ class ChromaRAGClient:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         query_id = f"CQ{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        cell_content = f'''# Chroma RAG Query #{query_id} - {timestamp}
+        cell_content = f'''# RAG Query #{query_id} - {timestamp}
 
 ## Question
 {query}
@@ -368,18 +343,16 @@ class ChromaRAGClient:
             "cell_type": "markdown",
             "metadata": {
                 "query_timestamp": timestamp,
-                "query_id": query_id,
-                "chroma_version": True
+                "query_id": query_id
             },
             "source": cell_content.split('\n')
         }
 
-        # Load or create notebook
         if os.path.exists(notebook_path):
             with open(notebook_path, 'r', encoding='utf-8') as f:
                 notebook = json.load(f)
         else:
-            notebook = create_notebook(timestamp)
+            notebook = {"cells": []}
 
         notebook["cells"].append(new_cell)
         notebook["cells"].append({
@@ -391,92 +364,13 @@ class ChromaRAGClient:
         with open(notebook_path, 'w', encoding='utf-8') as f:
             json.dump(notebook, f, indent=2, ensure_ascii=False)
 
-        self.logger.info(f"Query logged to notebook: {notebook_path}")
-
-    def interactive_mode(self):
-        """Interactive RAG session with Chroma."""
-        print("🚀 Chroma RAG Client - Interactive Mode")
-        print("Type 'quit' or 'exit' to end session")
-        print("Type 'info' to see database information")
-        print("Type 'memory on/off' to toggle conversation memory")
-        print("Type 'help' for commands")
-        print("-" * 50)
-
-        # Show database info at start
-        db_info = self.get_database_info()
-        print(f"📊 Database: {db_info.get('total_documents', 0)} documents loaded")
-
-        while True:
-            try:
-                user_input = input("\n💬 Ask a question: ").strip()
-
-                if user_input.lower() in ['quit', 'exit']:
-                    print("👋 Goodbye!")
-                    break
-
-                if user_input.lower() == 'help':
-                    print("""
-                        Available commands:
-                        - Ask any question for RAG-powered answers
-                        - 'info' - Show database information
-                        - 'memory on/off' - Toggle conversation memory
-                        - 'quit' or 'exit' - End session
-                        - 'help' - Show this message
-                    """)
-                    continue
-
-                if user_input.lower() == 'info':
-                    db_info = self.get_database_info()
-                    print(f"📊 Database Information:")
-                    for key, value in db_info.items():
-                        print(f"  {key}: {value}")
-                    continue
-
-                if user_input.lower().startswith('memory'):
-                    if 'on' in user_input.lower():
-                        self.enable_memory = True
-                        if not self.memory:
-                            self.memory = ConversationBufferMemory(
-                                memory_key="chat_history",
-                                return_messages=True,
-                                output_key="answer"
-                            )
-                        print("🧠 Memory enabled - conversation context will be maintained")
-                    elif 'off' in user_input.lower():
-                        self.enable_memory = False
-                        print("🧠 Memory disabled - each query will be independent")
-                    continue
-
-                if not user_input:
-                    continue
-
-                # Process query
-                result = self.ask_rag(user_input, verbose=True)
-
-                if not result['context_used']:
-                    print("❗ No relevant information found for your question.")
-                    if result['answer'].startswith('No documents found'):
-                        print("💡 Add documents using: process_pdf_files(['file1.pdf', 'file2.pdf'])")
-                else:
-                    print(f"\n✅ Answer:")
-                    print(result['answer'])
-
-                    if result['sources']:
-                        print(f"\n📚 Sources ({len(result['sources'])}):")
-                        for i, source in enumerate(result['sources'], 1):
-                            print(f"  {i}. {source['title']} (Page: {source['page']}, Score: {source['score']:.3f})")
-
-            except KeyboardInterrupt:
-                print("\n👋 Goodbye!")
-                break
-            except Exception as e:
-                print(f"❌ Error: {e}")
-
+        if self.verbose:
+            self.logger.info(f"Query logged to notebook: {notebook_path}")
 
 # Backward compatibility wrapper
-class AzureRAGClient(ChromaRAGClient):
+class AzureRAGClient(RAGClient):
     """Backward compatibility wrapper."""
-
+    
     def ask(self, query: str, verbose: bool = False) -> Dict[str, Any]:
         """Maintain compatibility with existing ask() method."""
         return self.ask_rag(query, verbose)

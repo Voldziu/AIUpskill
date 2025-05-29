@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from ChromaRAGClient import ChromaRAGClient
-from PDFprocessor import ChromaDocumentProcessor
+from RAGClient import RAGClient
+from PDFprocessor import DocumentProcessor
 
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
@@ -153,7 +153,7 @@ Examples:
     try:
         # Initialize RAG client
         print("🔧 Initializing Chroma RAG Client...")
-        rag_client = ChromaRAGClient(
+        rag_client = RAGClient(
             log_level=args.log_level,
             enable_notebook_logging=not args.no_notebook_log,
             enable_memory=args.memory,
@@ -182,7 +182,7 @@ Examples:
 
         # Document indexing
         if args.index_pdfs or args.index_dir:
-            processor = ChromaDocumentProcessor(
+            processor = DocumentProcessor(
                 rag_client,
                 chunk_size=args.chunk_size,
                 chunk_overlap=args.chunk_overlap
@@ -263,7 +263,7 @@ Examples:
         sys.exit(1)
 
 
-def show_database_info(rag_client: ChromaRAGClient):
+def show_database_info(rag_client: RAGClient):
     """Display database information."""
     print("\n📊 Database Information:")
 
