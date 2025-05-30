@@ -139,7 +139,7 @@ class RAGClient:
         
     def _setup_logging(self, log_level: str):
         """Setup logging configuration."""
-        os.makedirs("logs", exist_ok=True)
+        #os.makedirs("logs", exist_ok=True)
 
         numeric_level = getattr(logging, log_level.upper(), logging.INFO)
         formatter = logging.Formatter(
@@ -221,15 +221,31 @@ class RAGClient:
         if self.verbose:
             self.logger.warning("Clearing database")
 
-        self.vectorstore.delete_collection()
+        
+        
+        if not self.local:
+            search_client = self.vectorstore.client
+            
+            # Search for all documents to get their IDs
+            results = search_client.search("*", select="id")
+            
+            doc_ids = [doc["id"] for doc in results]
+        
+            if doc_ids:
+                # Delete documents by ID
+                search_client.delete_documents([{"id": doc_id} for doc_id in doc_ids])
+                if self.verbose:
+                    self.logger.info(f"Deleted {len(doc_ids)} documents from Azure Search")
+            else:
+                if self.verbose:
+                    self.logger.info("No documents found to delete")
+        else:
+            self.vectorstore.delete_collection()
+            
+        self._setup_vectorstore(self.local)  # Reinitialize vectorstore after clearing
+            
 
-        self.vectorstore = Chroma(
-            collection_name="rag_documents",
-            embedding_function=self.embeddings,
-            persist_directory=self.persist_directory
-        )
-
-        self.retriever.vectorstore = self.vectorstore
+        
         
         if self.verbose:
             self.logger.info("Database cleared successfully")

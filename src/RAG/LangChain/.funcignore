@@ -1,0 +1,46 @@
+.git*
+.vscode
+__azurite_db*__.json
+__blobstorage__
+__queuestorage__
+local.settings.json
+test
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.coverage
+.tox
+dist/
+build/
+*.egg-info/
+.ipynb_checkpoints
+.DS_Store
+logs/
+notebooks/
+db/
+*.log
+.env
+requirements_full.txt
+function_app_full.py
+# Exclude Streamlit files
+streamlit_app.py
+config.py
+.streamlit/
+# Exclude large data directories
+data/
+data-lektury/
+# Exclude development files
+*.md
+*.txt.bak
+frontend/
+db/
+data-lektury/
+data/
+logs/
+notebooks/
+azure-functions/
