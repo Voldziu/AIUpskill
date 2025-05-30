@@ -2,7 +2,7 @@
 """Configuration file for the Streamlit RAG Frontend"""
 
 # Azure Function App Configuration
-AZURE_FUNCTION_BASE_URL = "http://localhost:7075/api"
+AZURE_FUNCTION_BASE_URL = "https://ragtreny.azurewebsites.net/api"
 
 # Streamlit Page Configuration
 APP_TITLE = "RAG Chat Assistant"
