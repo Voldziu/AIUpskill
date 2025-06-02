@@ -13,27 +13,12 @@ from RAGClient import RAGClient
 from PDFprocessor import DocumentProcessor
 
 
-def setup_monitoring():
-    """Initialize monitoring only when appropriate"""
-    try:
-        # Only in Azure production, not during deployment
-        if (os.getenv('WEBSITE_SITE_NAME') and 
-            not os.getenv('WEBSITE_RUN_FROM_PACKAGE') and
-            os.getenv('APPLICATIONINSIGHTS_CONNECTION_STRING')):
-            
-            from azure.monitor.opentelemetry import configure_azure_monitor
-            configure_azure_monitor()
-            logging.info("Azure Monitor configured successfully")
-    except Exception as e:
-        logging.warning(f"Failed to configure Azure Monitor: {e}")
 
-# Call this after your function app is fully initialized
-setup_monitoring()
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -90,7 +75,8 @@ def get_rag_client():
             enable_notebook_logging=False,
             enable_memory=False,
             local=False,
-            verbose=True
+            verbose=True,
+            connection_string=os.getenv("AZURE_COSMOS_CONNECTION_STRING")
         )
     return _rag_client
 

@@ -25,6 +25,9 @@ chromadb==1.0.10
 # Logging
 azure-monitor-opentelemetry>=1.0.0
 psycopg2-binary==2.9.9
+opencensus
+opencensus-ext-azure
+
 
 # Required for PDF processing and text handling
 beautifulsoup4==4.13.4

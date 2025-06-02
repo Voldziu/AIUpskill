@@ -16,6 +16,8 @@ from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from ChromaRetriever import ChromaRetriever
@@ -25,7 +27,7 @@ class RAGClient:
 
     def __init__(self, log_level: str = "INFO", enable_notebook_logging: bool = True,
                  enable_memory: bool = False, persist_directory: str = "./db/chroma_db", 
-                 local: bool = False, verbose: bool = True):
+                 local: bool = False, verbose: bool = True, connection_string: str = None):
         """Initialize RAG client."""
         
         # Load environment variables
@@ -39,7 +41,7 @@ class RAGClient:
         self.persist_directory = persist_directory
         self.local = local
         self.verbose = verbose
-        
+        self.connection_string = connection_string
         self.logger = None 
         self._setup_logging(log_level)
         if self.verbose:
@@ -152,6 +154,9 @@ class RAGClient:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(numeric_level)
         console_handler.setFormatter(formatter)
+        
+        azure_handler = AzureLogHandler(connection_string=self.connection_string)
+        azure_handler.setLevel(logging.INFO)
 
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
@@ -159,6 +164,7 @@ class RAGClient:
        
        
         logger.addHandler(console_handler)
+        logger.addHandler(azure_handler)
         logger.propagate = False
 
         self.logger = logger
