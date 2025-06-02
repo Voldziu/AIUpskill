@@ -156,11 +156,7 @@ class RAGClient:
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
         logger.handlers.clear()
-        if self.verbose:
-            file_handler = logging.FileHandler('logs/chroma_rag.log')
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
+       
        
         logger.addHandler(console_handler)
         logger.propagate = False

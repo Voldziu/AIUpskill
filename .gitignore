@@ -10,3 +10,4 @@ logs/
 */notebooks/
 */logs/
 .python_packages
+env.json

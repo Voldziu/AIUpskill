@@ -1,7 +1,8 @@
 {
-  "IsEncrypted": true,
+  "IsEncrypted": false,
   "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "CfDJ8IHa5NFuXPdIhdILcdfJe/VfkOov0u/YqX3xjfMm8CVGkM/g1QPG7Idk65rCx5nCKd+zZVLLD0fLIzSK6zy9iAuQsl9ulWSX7x6ywNpm+DQtSAOxgdgzdLT75Gbjqhb1aw=="
-  },
-  "ConnectionStrings": {}
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=a2e5c19c-f8e6-4b7a-8553-3ee0940d5799;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;LiveEndpoint=https://swedencentral.livediagnostics.monitor.azure.com/;ApplicationId=0c99928c-6861-4294-9fff-57174f082e34"
+  }
 }

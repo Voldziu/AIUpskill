@@ -1,46 +1,59 @@
+# Git and IDE files
 .git*
-.vscode
+.vscode/
+.DS_Store
+
+# Azure Functions local development
 __azurite_db*__.json
 __blobstorage__
 __queuestorage__
 local.settings.json
-test
-.venv
-__pycache__
+.azure/
+
+# Python virtual environment and cache
+.venv/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 *.so
-.pytest_cache
+.pytest_cache/
 .coverage
-.tox
+.tox/
 dist/
 build/
 *.egg-info/
-.ipynb_checkpoints
-.DS_Store
-logs/
-notebooks/
-db/
+
+# Development and testing
+test/
+tests/
+.ipynb_checkpoints/
 *.log
 .env
-requirements_full.txt
-function_app_full.py
-# Exclude Streamlit files
+*.txt.bak
+*.zip
+temp/
+tmp/
+
+# Large data directories (these can cause deployment size issues)
+data/
+data-lektury/
+db/
+logs/
+notebooks/
+
+# Frontend and other project files
 streamlit_app.py
 config.py
 .streamlit/
-# Exclude large data directories
-data/
-data-lektury/
-# Exclude development files
-*.md
-*.txt.bak
 frontend/
-db/
-data-lektury/
-data/
-logs/
-notebooks/
 azure-functions/
+
+# Documentation (unless needed in production)
+*.md
+README*
+
+# Backup and alternative files
+requirements_full.txt
+function_app_full.py
